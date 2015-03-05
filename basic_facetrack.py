@@ -3,10 +3,8 @@
 once in every 5 frames. On detecting the face, a rectangular frame is drawn around the detected face. 
 Requires Python + OpenCV'''
 import cv2
-
-HAAR_CASCADE_PATH = "haarcascade_frontalface_alt.xml"
+HAAR_CASCADE_PATH = "haarcascade_frontalface_default.xml"
 CAMERA_INDEX = 0
-
 def detect_faces(image):
 	#print 'detect fn' #
 	faces = []
