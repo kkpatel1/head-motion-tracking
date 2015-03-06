@@ -14,6 +14,8 @@ import pygame
 
 HAAR_CASCADE_PATH = "haarcascade_frontalface_alt.xml"
 CAMERA_INDEX = 0
+DISTURBANCE_TOLERANCE = 5
+DISTURBANCE_TOLERANCE_ZOOM = 15
 
 key_to_function = {
     0:   (lambda x: x.translateAll('x', -10)),
@@ -21,13 +23,14 @@ key_to_function = {
     2:   (lambda x: x.translateAll('y',  10)),
     3:     (lambda x: x.translateAll('y', -10)),
     4: (lambda x: x.scaleAll(1.1)),
-    5:  (lambda x: x.scaleAll( 0.9)),
+    5:  (lambda x: x.scaleAll(0.9)),
     6:      (lambda x: x.rotateAll('X',  0.1)),
     7:      (lambda x: x.rotateAll('X', -0.1)),
     8:      (lambda x: x.rotateAll('Y',  0.1)),
     9:      (lambda x: x.rotateAll('Y', -0.1)),
     10:      (lambda x: x.rotateAll('Z',  0.1)),
     11:      (lambda x: x.rotateAll('Z', -0.1)) }
+
 
 def detect_faces(image):
 	faces = []
@@ -38,7 +41,7 @@ def detect_faces(image):
 			faces.append((x,y,w,h))
 	return faces
 
-def get_motion(face):
+def get_motion(face, prev_face):
 	#yaw is x-axis - horizontal axis
 	#pitch is y-axis - depth axis
 	#roll is z-axis - vertical axis
@@ -46,12 +49,12 @@ def get_motion(face):
 	#[0][0] - x, [0][1] - y, [0][2] - w, [0][3] - h
 
 	#w,h are approx constant for U,D,L,R events
-	#checking if w,h in range of origin(w,h)+/-5
-	if (face[0][2]>(origin[0][2]-5)) and (face[0][2]<(origin[0][2]+5)) and (face[0][3]>(origin[0][3]-5)) and (face[0][3]<(origin[0][3]+5)):
+	#checking if w,h in range of origin(w,h)+/-DISTURBANCE_TOLERANCE
+	if (face[0][2]>(origin[0][2]-DISTURBANCE_TOLERANCE)) and (face[0][2]<(origin[0][2]+DISTURBANCE_TOLERANCE)) and (face[0][3]>(origin[0][3]-DISTURBANCE_TOLERANCE)) and (face[0][3]<(origin[0][3]+DISTURBANCE_TOLERANCE)):
 		
 		#check x while y is same
-		if face[0][1]>(origin[0][1]-5) and face[0][1]<(origin[0][1]+5):
-			if face[0][0]>(origin[0][0]-5) and face[0][0]<(origin[0][0]+5):
+		if face[0][1]>(origin[0][1]-DISTURBANCE_TOLERANCE) and face[0][1]<(origin[0][1]+DISTURBANCE_TOLERANCE):
+			if face[0][0]>(origin[0][0]-DISTURBANCE_TOLERANCE) and face[0][0]<(origin[0][0]+DISTURBANCE_TOLERANCE):
 				#user is in origin location
 				print 'origin'
 				return 25 #no motion
@@ -76,15 +79,25 @@ def get_motion(face):
 				return 7
 	else:
 		#possible events: Zoom in, Zoom out
-		if (face[0][2]-origin[0][2])>0:
-			#ZOOM IN motion event - = button
-			print 'ZOOM IN'
-			return 4
-		elif (face[0][2]-origin[0][2])<0:
-			#ZOOM OUT motion event - -button
-			print 'ZOOM OUT'
-			return 5
-
+		if (prev_face == None):
+			if (face[0][2]-origin[0][2])>DISTURBANCE_TOLERANCE_ZOOM:
+				#ZOOM IN motion event - = button
+				print 'ZOOM IN'
+				return 4
+	 		elif (face[0][2]-origin[0][2])<DISTURBANCE_TOLERANCE_ZOOM:
+				#ZOOM OUT motion event - -button
+				print 'ZOOM OUT'
+				return 5
+		else:
+			if (face[0][2]-prev_face[0][2])>DISTURBANCE_TOLERANCE_ZOOM:
+				#ZOOM IN motion event - = button
+				print 'ZOOM IN'
+				return 4
+	 		elif (face[0][2]-prev_face[0][2])<DISTURBANCE_TOLERANCE_ZOOM:
+				#ZOOM OUT motion event - -button
+				print 'ZOOM OUT'
+				return 5
+			
 class ProjectionViewer:
     """ Displays 3D objects on a Pygame screen """
 
@@ -109,7 +122,7 @@ class ProjectionViewer:
 
     def run(self):
         """ Create a pygame screen until it is closed. """
-
+	prev_face = None
         running = True
         while running:
         	retval, image = capture.read()
@@ -131,14 +144,16 @@ class ProjectionViewer:
         		print 'origin is ',origin
 
         	if origin!=[] and faces!=[]:
-        		dir = get_motion(faces)
-        		print 'direction vector',dir
+			
+        		dir = get_motion(faces, prev_face)
+        		prev_face = [j[:] for j in faces]
+			print 'direction vector',dir
         		if dir in key_to_function:
         			key_to_function[dir](self)
 
         	cv2.imshow("Video",image)
         	i += 1
-        	c = cv2.waitKey(10)
+        	c = cv2.waitKey(5)
 
         	if c==27:
         		break
