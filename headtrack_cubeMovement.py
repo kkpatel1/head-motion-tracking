@@ -14,8 +14,8 @@ import pygame
 
 HAAR_CASCADE_PATH = "haarcascade_frontalface_alt.xml"
 CAMERA_INDEX = 0
-DISTURBANCE_TOLERANCE = 5
-DISTURBANCE_TOLERANCE_ZOOM = 15
+DISTURBANCE_TOLERANCE = 50   # High for less sensitivity towards Zoom IN/OUT
+DISTURBANCE_TOLERANCE_ZOOM = 100 # More for less sensitivity towards ZOOM IN/OUT. More the difference, more will be stable time.
 
 key_to_function = {
     0:   (lambda x: x.translateAll('x', -10)),
@@ -41,7 +41,7 @@ def detect_faces(image):
 			faces.append((x,y,w,h))
 	return faces
 
-def get_motion(face, prev_face):
+def get_motion(face):
 	#yaw is x-axis - horizontal axis
 	#pitch is y-axis - depth axis
 	#roll is z-axis - vertical axis
@@ -79,24 +79,14 @@ def get_motion(face, prev_face):
 				return 7
 	else:
 		#possible events: Zoom in, Zoom out
-		if (prev_face == None):
-			if (face[0][2]-origin[0][2])>DISTURBANCE_TOLERANCE_ZOOM:
-				#ZOOM IN motion event - = button
-				print 'ZOOM IN'
-				return 4
-	 		elif (face[0][2]-origin[0][2])<DISTURBANCE_TOLERANCE_ZOOM:
-				#ZOOM OUT motion event - -button
-				print 'ZOOM OUT'
-				return 5
-		else:
-			if (face[0][2]-prev_face[0][2])>DISTURBANCE_TOLERANCE_ZOOM:
-				#ZOOM IN motion event - = button
-				print 'ZOOM IN'
-				return 4
-	 		elif (face[0][2]-prev_face[0][2])<DISTURBANCE_TOLERANCE_ZOOM:
-				#ZOOM OUT motion event - -button
-				print 'ZOOM OUT'
-				return 5
+		if (face[0][2]-origin[0][2])>DISTURBANCE_TOLERANCE_ZOOM:
+			#ZOOM IN motion event - = button
+			print 'ZOOM IN'
+			return 4
+	 	elif (face[0][2]-origin[0][2])<DISTURBANCE_TOLERANCE_ZOOM:
+			#ZOOM OUT motion event - -button
+			print 'ZOOM OUT'
+			return 5
 			
 class ProjectionViewer:
     """ Displays 3D objects on a Pygame screen """
@@ -122,7 +112,6 @@ class ProjectionViewer:
 
     def run(self):
         """ Create a pygame screen until it is closed. """
-	prev_face = None
         running = True
         while running:
         	retval, image = capture.read()
@@ -144,9 +133,7 @@ class ProjectionViewer:
         		print 'origin is ',origin
 
         	if origin!=[] and faces!=[]:
-			
-        		dir = get_motion(faces, prev_face)
-        		prev_face = [j[:] for j in faces]
+        		dir = get_motion(faces)
 			print 'direction vector',dir
         		if dir in key_to_function:
         			key_to_function[dir](self)
