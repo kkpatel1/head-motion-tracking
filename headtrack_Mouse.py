@@ -1,7 +1,4 @@
-#headtracking code that performs 3D transformations of a cube using head movement
-
 #!/bin/env python
-
 import cv2
 import pyautogui
 
@@ -28,19 +25,19 @@ def detect_faces(image):
 	return faces
 
 def get_motion(face):
-#	#yaw is x-axis - horizontal axis
-#	#pitch is y-axis - depth axis
-#	#roll is z-axis - vertical axis
-#
-#	#[0][0] - x, [0][1] - y, [0][2] - w, [0][3] - h
-#
-#	#w,h are approx constant for U,D,L,R events
-#	#checking if w,h in range of origin(w,h)+/-DISTURBANCE_TOLERANCE
+	#yaw is x-axis - horizontal axis
+	#pitch is y-axis - depth axis
+	#roll is z-axis - vertical axis
+
+	#[0][0] - x, [0][1] - y, [0][2] - w, [0][3] - h
+
+	#w,h are approx constant for U,D,L,R events
+	#checking if w,h in range of origin(w,h)+/-DISTURBANCE_TOLERANCE
 	if (face[0][2]>(origin[0][2]-DISTURBANCE_TOLERANCE)) and (face[0][2]<(origin[0][2]+DISTURBANCE_TOLERANCE)) and (face[0][3]>(origin[0][3]-DISTURBANCE_TOLERANCE)) and (face[0][3]<(origin[0][3]+DISTURBANCE_TOLERANCE)):
-#		#check x while y is same
+		#check x while y is same
 		if face[0][1]>(origin[0][1]-DISTURBANCE_TOLERANCE) and face[0][1]<(origin[0][1]+DISTURBANCE_TOLERANCE):
 			if face[0][0]>(origin[0][0]-DISTURBANCE_TOLERANCE) and face[0][0]<(origin[0][0]+DISTURBANCE_TOLERANCE):
-#				#user is in origin location
+				#user is in origin location
 				print 'origin'
 				return 25,0 #no motion
 			else:
@@ -64,17 +61,17 @@ def get_motion(face):
 				return 3, origin[0][1]-face[0][1]
 	else:
 		pass	
-##		#possible events: Zoom in, Zoom out
-##		if (face[0][2]-origin[0][2])>DISTURBANCE_TOLERANCE_ZOOM:
-##			#ZOOM IN motion event - = button
-##			print 'ZOOM IN'
-##			return 4
-##	 	elif (face[0][2]-origin[0][2])<DISTURBANCE_TOLERANCE_ZOOM:
-##			#ZOOM OUT motion event - -button
-##			print 'ZOOM OUT'
-##			return 5
+#		#possible events: Zoom in, Zoom out
+#		if (face[0][2]-origin[0][2])>DISTURBANCE_TOLERANCE_ZOOM:
+#			#ZOOM IN motion event - = button
+#			print 'ZOOM IN'
+#			return 4
+#	 	elif (face[0][2]-origin[0][2])<DISTURBANCE_TOLERANCE_ZOOM:
+#			#ZOOM OUT motion event - -button
+#			print 'ZOOM OUT'
+#			return 5
 
-			
+
 def run():
     """ Create a pygame screen until it is closed. """
     running = True
