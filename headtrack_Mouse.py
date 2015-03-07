@@ -1,11 +1,5 @@
 #headtracking code that performs 3D transformations of a cube using head movement
 
-
-''''This python code performs headtracking with a 3D wire frame cube. Based on head movement, the object is rotated/scaled. Thus, this code can 
-rotate left/right/up/down, as well as zoom in/out.
-Requires wireframe3.py to be in the same directory.
-Requires Python + OpenCV + Pygame'''
-
 #!/bin/env python
 
 import cv2
@@ -34,20 +28,19 @@ def detect_faces(image):
 	return faces
 
 def get_motion(face):
-	#yaw is x-axis - horizontal axis
-	#pitch is y-axis - depth axis
-	#roll is z-axis - vertical axis
-
-	#[0][0] - x, [0][1] - y, [0][2] - w, [0][3] - h
-
-	#w,h are approx constant for U,D,L,R events
-	#checking if w,h in range of origin(w,h)+/-DISTURBANCE_TOLERANCE
+#	#yaw is x-axis - horizontal axis
+#	#pitch is y-axis - depth axis
+#	#roll is z-axis - vertical axis
+#
+#	#[0][0] - x, [0][1] - y, [0][2] - w, [0][3] - h
+#
+#	#w,h are approx constant for U,D,L,R events
+#	#checking if w,h in range of origin(w,h)+/-DISTURBANCE_TOLERANCE
 	if (face[0][2]>(origin[0][2]-DISTURBANCE_TOLERANCE)) and (face[0][2]<(origin[0][2]+DISTURBANCE_TOLERANCE)) and (face[0][3]>(origin[0][3]-DISTURBANCE_TOLERANCE)) and (face[0][3]<(origin[0][3]+DISTURBANCE_TOLERANCE)):
-		
-		#check x while y is same
+#		#check x while y is same
 		if face[0][1]>(origin[0][1]-DISTURBANCE_TOLERANCE) and face[0][1]<(origin[0][1]+DISTURBANCE_TOLERANCE):
 			if face[0][0]>(origin[0][0]-DISTURBANCE_TOLERANCE) and face[0][0]<(origin[0][0]+DISTURBANCE_TOLERANCE):
-				#user is in origin location
+#				#user is in origin location
 				print 'origin'
 				return 25,0 #no motion
 			else:
@@ -71,15 +64,16 @@ def get_motion(face):
 				return 3, origin[0][1]-face[0][1]
 	else:
 		pass	
-#		#possible events: Zoom in, Zoom out
-#		if (face[0][2]-origin[0][2])>DISTURBANCE_TOLERANCE_ZOOM:
-#			#ZOOM IN motion event - = button
-#			print 'ZOOM IN'
-#			return 4
-#	 	elif (face[0][2]-origin[0][2])<DISTURBANCE_TOLERANCE_ZOOM:
-#			#ZOOM OUT motion event - -button
-#			print 'ZOOM OUT'
-#			return 5
+##		#possible events: Zoom in, Zoom out
+##		if (face[0][2]-origin[0][2])>DISTURBANCE_TOLERANCE_ZOOM:
+##			#ZOOM IN motion event - = button
+##			print 'ZOOM IN'
+##			return 4
+##	 	elif (face[0][2]-origin[0][2])<DISTURBANCE_TOLERANCE_ZOOM:
+##			#ZOOM OUT motion event - -button
+##			print 'ZOOM OUT'
+##			return 5
+
 			
 def run():
     """ Create a pygame screen until it is closed. """
@@ -104,18 +98,19 @@ def run():
        		print 'origin is ',origin
 
        	if origin!=[] and faces!=[]:
-       		direction, val = get_motion(faces)
-		print 'direction vector',dir
-       		if direction in key_to_function:
-       			key_to_function[direction](val)
-
+#      		direction, val = get_motion(faces)
+#		print 'direction vector',dir
+#      		if direction in key_to_function:
+#      			key_to_function[direction](val)
+		move(faces)	
        	cv2.imshow("Video",image)
        	i += 1
        	c = cv2.waitKey(5)
 
        	if c==27:
        		break
-        	
+def move(face):
+	pyautogui.moveTo((face[0][0]+face[0][2]/2)*1366/600, (face[0][1]+face[0][3]/2)*768/600)        	
 def moveRight(value):
 	pyautogui.moveRel(value, None)
 def moveLeft(value):
@@ -129,7 +124,7 @@ def moveDown(value):
 
 if __name__ == '__main__':
 
-    cv2.namedWindow("Video",400)
+    cv2.namedWindow("Video",600)
 
     capture = cv2.VideoCapture(CAMERA_INDEX)
     cascade = cv2.CascadeClassifier(HAAR_CASCADE_PATH)
