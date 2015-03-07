@@ -117,13 +117,13 @@ def run():
        		break
         	
 def moveRight(value):
-	pyautogui.moveRel(value, None,0.2)
+	pyautogui.moveRel(value, None)
 def moveLeft(value):
-	pyautogui.moveRel(-value, None,0.2)
+	pyautogui.moveRel(-value, None)
 def moveUp(value):
-	pyautogui.moveRel(None, -value,0.2)
+	pyautogui.moveRel(None, -value)
 def moveDown(value):
-	pyautogui.moveRel(None, value,0.2)
+	pyautogui.moveRel(None, value)
 
 
 
