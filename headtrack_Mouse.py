@@ -68,7 +68,7 @@ def run():
        		faces = detect_faces(image)
 		if faces:
 			faceCenter = (faces[0][0]+faces[0][2]/2, faces[0][1]+faces[0][3]/2)
-       		print 'current coords',faces
+       		print 'current coords',faceCenter
 
 		if faceCenter:
 			faceArray.append(faceCenter)
@@ -98,7 +98,7 @@ def run():
        	i += 1
        	c = cv2.waitKey(1)
 
-       	if c==27:
+     	if c==27:
        		break
 
 def moveRight():
@@ -123,9 +123,12 @@ if __name__ == '__main__':
     cv2.namedWindow("Video",600)
 
     capture = cv2.VideoCapture(CAMERA_INDEX)
-    capture.set(cv2.cv.CV_CAP_PROP_FPS, 30)
+    capture.set(cv2.cv.CV_CAP_PROP_FPS, CAMERA_FPS)
     cascade = cv2.CascadeClassifier(HAAR_CASCADE_PATH)
     faces = [] #var that stores face rect coords
     origin = [] #var that will store the origin coords
-    #os.system("google-chrome --new-window index.html")
-    run() 
+    os.system("google-chrome --new-window index.html")
+    try:
+        run()
+    except KeyboardInterrupt:
+        print "Thank you for using"	
