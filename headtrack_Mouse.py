@@ -1,13 +1,13 @@
-#!/bin/env python
 import os
 import cv2
 import pyautogui
 
 HAAR_CASCADE_PATH = "haarcascade_frontalface_alt.xml"
 CAMERA_INDEX = 0
-DISTURBANCE_TOLERANCE_HORI = 20.0  #Sensitivity
-DISTURBANCE_TOLERANCE_UP = 15.0  #Sensitivity
-DISTURBANCE_TOLERANCE_DOWN = -10.0
+DISTURBANCE_SCALE = 1
+DISTURBANCE_TOLERANCE_HORI = 20.0/DISTURBANCE_SCALE  #Sensitivity
+DISTURBANCE_TOLERANCE_UP = 15.0/DISTURBANCE_SCALE  #Sensitivity
+DISTURBANCE_TOLERANCE_DOWN = -10.0/DISTURBANCE_SCALE
 CAMERA_FPS = 20
 
 def detect_faces(image):
@@ -60,12 +60,20 @@ def run():
     originCenter = None
     faceArray = []
     faceCenter = None
+    faces = [[]]
+    maxArea = 0
     while running:
      	retval, image = capture.read()
 
        	# Only run the Detection algorithm every 3 frames to improve performance
       	if i%3==0:
-       		faces = detect_faces(image)
+       		faceArr = detect_faces(image)
+		for f in faceArr:
+			if maxArea == max(f[2]*f[3], maxArea):
+				continue
+			else:
+				maxArea = f[2]*f[3]
+				faces[0] = f[:]
 		if faces:
 			faceCenter = (faces[0][0]+faces[0][2]/2, faces[0][1]+faces[0][3]/2)
        		print 'current coords',faceCenter
@@ -84,7 +92,7 @@ def run():
       		if direction in key_to_function:
       			key_to_function[direction]()
 
-       	if i%20==0 and faces:
+       	if i%7==0 and faces:
        		#approx 3 secs of config time
 		faceCenter_avg_y = sum([j[1] for j in faceArray])/len(faceArray)
 		faceCenter_avg_x = sum([j[0] for j in faceArray])/len(faceArray)
@@ -97,7 +105,7 @@ def run():
 		i -= 1
        	i += 1
        	c = cv2.waitKey(1)
-
+        maxArea = 0
      	if c==27:
        		break
 
