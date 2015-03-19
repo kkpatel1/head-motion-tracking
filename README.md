@@ -1,4 +1,4 @@
-Head-tracking
+Head Motion Detection and Tracking
 =============
 
 This project can perform head tracking and virtually press keys based on movement of head in Python using OpenCV.
